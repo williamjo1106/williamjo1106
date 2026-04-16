@@ -568,7 +568,7 @@ export default function App() {
                   id="name"
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
-                  className="col-span-3 h-10 text-sm border-[#6F4E37] bg-white text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#E6D5C3] outline-none"
+                  className="col-span-3 h-10 text-sm border-[#6F4E37] bg-white !text-black placeholder:text-slate-400 focus:ring-2 focus:ring-[#E6D5C3] outline-none"
                   placeholder=""
                   autoFocus
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
@@ -584,7 +584,7 @@ export default function App() {
                   type="password"
                   value={tempPassword}
                   onChange={(e) => setTempPassword(e.target.value)}
-                  className="col-span-3 h-10 text-sm border-[#6F4E37] bg-white text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#E6D5C3] outline-none"
+                  className="col-span-3 h-10 text-sm border-[#6F4E37] bg-white !text-black placeholder:text-slate-400 focus:ring-2 focus:ring-[#E6D5C3] outline-none"
                   placeholder=""
                   autoFocus
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
