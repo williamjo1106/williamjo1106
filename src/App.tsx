@@ -549,10 +549,10 @@ export default function App() {
 
       {/* Name Entry Dialog */}
       <Dialog open={isNameDialogOpen} onOpenChange={(open) => !open && userName ? setIsNameDialogOpen(false) : null}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-[425px] bg-[#8B5E3C] border border-[#6F4E37] shadow-2xl opacity-100 text-white">
           <DialogHeader>
-            <DialogTitle>{showPasswordInput ? 'Host 로그인' : '환영합니다!'}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-white text-xl">{showPasswordInput ? 'Host 로그인' : '환영합니다!'}</DialogTitle>
+            <DialogDescription className="text-[#E6D5C3]">
               {showPasswordInput 
                 ? '관리자 비밀번호를 입력해주세요.' 
                 : '링크를 공유하기 전에 이름을 입력해주세요. 다른 교육생들에게 이 이름으로 표시됩니다.'}
@@ -561,22 +561,22 @@ export default function App() {
           <div className="grid gap-4 py-4">
             {!showPasswordInput ? (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="name" className="text-right text-xs">
+                <Label htmlFor="name" className="text-right text-xs text-[#FDFCF9]">
                   이름
                 </Label>
                 <Input
                   id="name"
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
-                  className="col-span-3 h-9 text-sm"
-                  placeholder="홍길동"
+                  className="col-span-3 h-10 text-sm border-[#6F4E37] bg-white text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#E6D5C3] outline-none"
+                  placeholder=""
                   autoFocus
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
                 />
               </div>
             ) : (
               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="pass" className="text-right text-xs">
+                <Label htmlFor="pass" className="text-right text-xs text-[#FDFCF9]">
                   비밀번호
                 </Label>
                 <Input
@@ -584,27 +584,27 @@ export default function App() {
                   type="password"
                   value={tempPassword}
                   onChange={(e) => setTempPassword(e.target.value)}
-                  className="col-span-3 h-9 text-sm"
-                  placeholder="****"
+                  className="col-span-3 h-10 text-sm border-[#6F4E37] bg-white text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-[#E6D5C3] outline-none"
+                  placeholder=""
                   autoFocus
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
                 />
               </div>
             )}
           </div>
-          <DialogFooter className="flex flex-row justify-between items-center sm:justify-between">
+          <DialogFooter className="flex flex-row justify-between items-center sm:justify-between bg-black/10 border-t border-white/10 p-4">
             <Button 
               variant="ghost" 
               size="sm" 
               onClick={() => setShowPasswordInput(!showPasswordInput)}
-              className="text-[10px] text-natural-muted"
+              className="text-xs text-[#E6D5C3] hover:text-white hover:bg-white/10"
             >
               {showPasswordInput ? '교육생으로 접속' : 'Host로 접속'}
             </Button>
             <Button 
               onClick={handleSaveName} 
               disabled={showPasswordInput ? !tempPassword : !tempName.trim()}
-              className="bg-natural-accent hover:bg-natural-accent/90 h-9 px-6"
+              className="bg-[#FDFCF9] hover:bg-white text-[#8B5E3C] h-10 px-8 font-bold rounded-lg transition-all active:scale-95"
             >
               {showPasswordInput ? '로그인' : '시작하기'}
             </Button>
