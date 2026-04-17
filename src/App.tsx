@@ -5,12 +5,13 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Plus, Link as LinkIcon, User, ExternalLink, Share2, Trash2, ShieldCheck, Lock, AlertTriangle, RefreshCw, Eye, EyeOff, Edit2, Check, X, GripVertical } from 'lucide-react';
+import { Plus, Link as LinkIcon, User, ExternalLink, Share2, Trash2, ShieldCheck, Lock, AlertTriangle, RefreshCw, Eye, EyeOff, Edit2, Check, X, GripVertical, FileDown, FileUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import * as XLSX from 'xlsx';
 
 interface SharedLink {
   id: string;
@@ -273,6 +274,74 @@ export default function App() {
     startWidthRef.current = categoryWidths[categoryId] || 320;
   };
 
+  const handleExportExcel = () => {
+    const dataToExport = links.map(link => ({
+      '이름': link.authorName,
+      '제목': link.title,
+      'URL': link.url,
+      '카테고리': categoryNames[link.category] || link.category,
+      '작성일': new Date(link.createdAt).toLocaleString()
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(dataToExport);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "EduShare_Links");
+    XLSX.writeFile(workbook, `EduShare_Backup_${new Date().toISOString().split('T')[0]}.xlsx`);
+  };
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportExcel = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const bstr = evt.target?.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        const formattedLinks = data.map((row: any) => ({
+          authorName: row['이름'] || row['Name'] || row['authorName'] || '익명',
+          title: row['제목'] || row['Title'] || row['title'] || '',
+          url: row['URL'] || row['url'] || '',
+          category: Object.keys(categoryNames).find(key => 
+            categoryNames[key] === row['카테고리'] || 
+            key === row['카테고리'] || 
+            key === row['category']
+          ) || 'practice1',
+        })).filter(l => l.url);
+
+        if (formattedLinks.length === 0) {
+          alert('가져올 올바른 데이터가 없습니다. (이름, 제목, URL, 카테고리 컬럼을 확인해주세요)');
+          return;
+        }
+
+        if (!confirm(`${formattedLinks.length}개의 링크를 가져오시겠습니까?`)) return;
+
+        const response = await fetch('/api/links/batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ links: formattedLinks }),
+        });
+        
+        if (response.ok) {
+          alert('성공적으로 데이터를 가져왔습니다.');
+          fetchLinks(true);
+        }
+      } catch (err) {
+        console.error('Import failed:', err);
+        alert('엑셀 파일을 읽는 중 오류가 발생했습니다.');
+      } finally {
+        if (e.target) e.target.value = '';
+      }
+    };
+    reader.readAsBinaryString(file);
+  };
+
   return (
     <div className={`min-h-screen bg-natural-bg text-natural-ink font-sans selection:bg-natural-clay/20 ${resizingCategory ? 'cursor-col-resize select-none' : ''}`}>
       {/* Header */}
@@ -292,6 +361,35 @@ export default function App() {
         </div>
         
         <div className="flex items-center gap-4">
+          {isHost && (
+            <div className="flex items-center gap-2 border-r pr-4 border-slate-200">
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                onChange={handleImportExcel} 
+                className="hidden" 
+                accept=".xlsx, .xls, .csv"
+              />
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => fileInputRef.current?.click()}
+                className="h-8 gap-1.5 text-[11px] font-bold border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+              >
+                <FileUp size={14} />
+                Excel Import
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleExportExcel}
+                className="h-8 gap-1.5 text-[11px] font-bold border-blue-200 text-blue-700 hover:bg-blue-50"
+              >
+                <FileDown size={14} />
+                Excel Export
+              </Button>
+            </div>
+          )}
           <div className="hidden sm:block text-sm text-natural-muted">
             반갑습니다, <span className="text-natural-ink font-semibold underline underline-offset-4">{userName || 'Guest'}</span> 님
           </div>

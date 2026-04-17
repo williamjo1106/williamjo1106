@@ -108,6 +108,26 @@ async function startServer() {
     res.status(201).json(newLink);
   });
 
+  app.post("/api/links/batch", (req, res) => {
+    const { links } = req.body;
+    if (!Array.isArray(links)) {
+      return res.status(400).json({ error: "Invalid format" });
+    }
+
+    const newLinks: SharedLink[] = links.map(link => ({
+      id: Math.random().toString(36).substring(2, 11),
+      url: link.url,
+      title: link.title || link.url,
+      authorName: link.authorName || "익명",
+      category: link.category || "practice1",
+      createdAt: link.createdAt || Date.now(),
+    }));
+
+    dbData.links = [...newLinks, ...dbData.links];
+    saveData();
+    res.status(201).json({ count: newLinks.length });
+  });
+
   app.post("/api/categories/toggle-visibility", (req, res) => {
     const { categoryId } = req.body;
     if (!categoryId) return res.status(400).send();
